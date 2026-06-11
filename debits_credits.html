@@ -1,0 +1,1575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demystifying Debits & Credits | Interactive Accounting Lesson</title>
+    <style>
+        :root {
+            --user-primary: #1a4480;
+            --user-accent: #c8102e;
+            --user-background: #ffffff;
+            --text-dark: #1e293b;
+            --text-light: #64748b;
+            --bg-light: #f8fafc;
+            --bg-card: #ffffff;
+            --border-color: #cbd5e1;
+            
+            --debit-color: #16a34a; /* Safe Green for Debit/Left side actions */
+            --credit-color: #ea580c; /* Safe Warm Orange/Red for Credit/Right side actions */
+            --debit-light: #f0fdf4;
+            --credit-light: #fff7ed;
+            
+            --success-color: #15803d;
+            --error-color: #b91c1c;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+            line-height: 1.6;
+            padding: 0;
+            min-height: 100vh;
+        }
+
+        /* Top Header Styling */
+        header {
+            background: linear-gradient(135deg, var(--user-primary) 0%, #0f2d59 100%);
+            color: #ffffff;
+            padding: 40px 20px;
+            text-align: center;
+            border-bottom: 5px solid var(--user-accent);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+        }
+
+        .header-content {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 10px;
+            letter-spacing: -0.025em;
+        }
+
+        header p {
+            font-size: 1.15rem;
+            opacity: 0.9;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        header .professor-badge {
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            display: inline-block;
+            padding: 6px 16px;
+            border-radius: 30px;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            margin-bottom: 15px;
+        }
+
+        /* Dashboard Layout Container */
+        .container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        /* Navigation Tabs */
+        .nav-tabs {
+            display: flex;
+            background-color: #e2e8f0;
+            border-radius: 12px;
+            padding: 6px;
+            margin-bottom: 30px;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+
+        .nav-tab {
+            flex: 1;
+            text-align: center;
+            padding: 12px 16px;
+            background: none;
+            border: none;
+            color: var(--text-light);
+            font-size: 0.95rem;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            min-width: 150px;
+        }
+
+        .nav-tab:hover {
+            color: var(--user-primary);
+            background-color: rgba(255, 255, 255, 0.5);
+        }
+
+        .nav-tab.active {
+            background-color: var(--user-background);
+            color: var(--user-primary);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+        }
+
+        /* Tab Panels */
+        .tab-panel {
+            display: none;
+            animation: fadeIn 0.4s ease-in-out;
+        }
+
+        .tab-panel.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Card Layout Elements */
+        .card {
+            background: var(--bg-card);
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            padding: 35px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+        }
+
+        h2 {
+            font-size: 1.75rem;
+            color: var(--user-primary);
+            margin-bottom: 20px;
+            font-weight: 700;
+            border-left: 5px solid var(--user-accent);
+            padding-left: 15px;
+        }
+
+        p {
+            font-size: 1.05rem;
+            color: var(--text-dark);
+            margin-bottom: 20px;
+            line-height: 1.7;
+        }
+
+        /* Callout Box */
+        .callout {
+            background-color: #f1f5f9;
+            border-left: 4px solid var(--user-primary);
+            padding: 20px;
+            border-radius: 0 8px 8px 0;
+            margin: 25px 0;
+        }
+
+        .callout-title {
+            font-weight: 700;
+            color: var(--user-primary);
+            margin-bottom: 5px;
+            font-size: 1.1rem;
+        }
+
+        /* The Interactive Accounting Equation Card Group */
+        .equation-grid {
+            display: grid;
+            grid-template-columns: 1.2fr 0.3fr 1fr 0.3fr 1fr;
+            align-items: center;
+            text-align: center;
+            margin: 30px 0;
+            gap: 15px;
+        }
+
+        @media (max-width: 850px) {
+            .equation-grid {
+                grid-template-columns: 1fr;
+            }
+            .equation-operator {
+                font-size: 2rem !important;
+                margin: 10px 0;
+            }
+        }
+
+        .equation-element {
+            background: #fdfdfd;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .equation-element:hover {
+            transform: translateY(-5px);
+            border-color: var(--user-primary);
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05);
+        }
+
+        .equation-element h3 {
+            font-size: 1.35rem;
+            margin-bottom: 8px;
+            color: var(--user-primary);
+        }
+
+        .equation-operator {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--text-light);
+        }
+
+        /* Flipcard Mechanics for Concept Checks */
+        .equation-details {
+            display: none;
+            margin-top: 15px;
+            font-size: 0.95rem;
+            color: var(--text-light);
+            border-top: 1px dashed var(--border-color);
+            padding-top: 15px;
+        }
+
+        .equation-element.active {
+            border-color: var(--user-primary);
+            background-color: var(--bg-light);
+        }
+
+        .equation-element.active .equation-details {
+            display: block;
+        }
+
+        /* T-Account Visual Structures */
+        .t-account-container {
+            max-width: 600px;
+            margin: 30px auto;
+            background: white;
+            border-radius: 12px;
+            border: 2px solid #94a3b8;
+            overflow: hidden;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+        }
+
+        .t-account-header {
+            background: #94a3b8;
+            color: white;
+            text-align: center;
+            padding: 12px;
+            font-weight: 700;
+            font-size: 1.25rem;
+            letter-spacing: 0.025em;
+        }
+
+        .t-account-split {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            min-height: 250px;
+        }
+
+        .t-side {
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .debit-side {
+            border-right: 2px solid #cbd5e1;
+            background-color: var(--debit-light);
+        }
+
+        .credit-side {
+            background-color: var(--credit-light);
+        }
+
+        .side-label {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            font-weight: 800;
+            color: var(--text-light);
+            margin-bottom: 15px;
+            letter-spacing: 0.05em;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .side-label .abbr {
+            font-size: 0.9rem;
+            color: var(--text-dark);
+        }
+
+        .t-items {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .t-item {
+            background: white;
+            border: 1px solid var(--border-color);
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-family: monospace;
+            font-weight: 700;
+            font-size: 1.05rem;
+            display: flex;
+            justify-content: space-between;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            animation: slideIn 0.2s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .t-footer-balance {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            border-top: 3px double #94a3b8;
+            background-color: #f1f5f9;
+            font-weight: 800;
+            font-size: 1.1rem;
+            font-family: monospace;
+        }
+
+        .t-balance-side {
+            padding: 12px 20px;
+        }
+
+        /* DEALER Tooltip card list */
+        .dealer-visual {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 12px;
+            margin: 30px 0;
+        }
+
+        @media (max-width: 768px) {
+            .dealer-visual {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        .dealer-card {
+            border-radius: 12px;
+            padding: 20px 10px;
+            text-align: center;
+            border: 2px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+
+        .dealer-card.debit-rule {
+            border-color: var(--debit-color);
+            background-color: var(--debit-light);
+        }
+
+        .dealer-card.credit-rule {
+            border-color: var(--credit-color);
+            background-color: var(--credit-light);
+        }
+
+        .dealer-letter {
+            font-size: 2.2rem;
+            font-weight: 800;
+            line-height: 1;
+            margin-bottom: 5px;
+        }
+
+        .debit-rule .dealer-letter { color: var(--debit-color); }
+        .credit-rule .dealer-letter { color: var(--credit-color); }
+
+        .dealer-word {
+            font-weight: 700;
+            font-size: 0.95rem;
+            margin-bottom: 12px;
+        }
+
+        .rule-badge {
+            display: inline-block;
+            font-size: 0.75rem;
+            font-weight: 800;
+            padding: 4px 8px;
+            border-radius: 20px;
+            color: white;
+        }
+
+        .debit-rule .rule-badge { background-color: var(--debit-color); }
+        .credit-rule .rule-badge { background-color: var(--credit-color); }
+
+        /* The Live Balancing scale Graphic */
+        .scale-section {
+            background-color: #f1f5f9;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 30px 0;
+            text-align: center;
+        }
+
+        .scale-graphic-container {
+            position: relative;
+            height: 140px;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        .scale-base {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 20px;
+            background-color: #475569;
+            border-radius: 5px 5px 0 0;
+        }
+
+        .scale-pillar {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 12px;
+            height: 80px;
+            background-color: #64748b;
+        }
+
+        .scale-beam {
+            position: absolute;
+            bottom: 90px;
+            left: calc(50% - 150px);
+            width: 300px;
+            height: 8px;
+            background-color: #475569;
+            transform-origin: center center;
+            transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border-radius: 4px;
+        }
+
+        .scale-pan {
+            position: absolute;
+            top: 8px;
+            width: 60px;
+            height: 10px;
+            background-color: #94a3b8;
+            border-radius: 0 0 12px 12px;
+            border-top: 3px solid #334155;
+            transition: transform 0.6s ease;
+        }
+
+        .scale-pan-left {
+            left: -10px;
+        }
+
+        .scale-pan-right {
+            right: -10px;
+        }
+
+        /* Scale Hangers */
+        .scale-beam::before {
+            content: '';
+            position: absolute;
+            left: 20px;
+            top: 8px;
+            width: 2px;
+            height: 40px;
+            background-color: #64748b;
+        }
+        .scale-beam::after {
+            content: '';
+            position: absolute;
+            right: 20px;
+            top: 8px;
+            width: 2px;
+            height: 40px;
+            background-color: #64748b;
+        }
+
+        /* Visual Scale weights */
+        .pan-content {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #334155;
+            position: absolute;
+            top: -20px;
+            width: 100%;
+            text-align: center;
+        }
+
+        /* Interactive Journal Entry Challenge Table */
+        .journal-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .journal-table th {
+            background-color: var(--user-primary);
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-size: 0.95rem;
+        }
+
+        .journal-table td {
+            border-bottom: 1px solid var(--border-color);
+            padding: 15px 12px;
+            background-color: white;
+        }
+
+        .journal-row select, .journal-row input {
+            width: 100%;
+            padding: 8px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            font-size: 0.95rem;
+        }
+
+        .journal-row input[type="number"] {
+            font-family: monospace;
+            text-align: right;
+        }
+
+        .journal-row select:focus, .journal-row input:focus {
+            outline: 2px solid var(--user-primary);
+            border-color: transparent;
+        }
+
+        .status-pill {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .status-balanced {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+
+        .status-unbalanced {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+
+        /* Quiz components */
+        .quiz-card {
+            background-color: #f8fafc;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 25px;
+        }
+
+        .quiz-question {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--user-primary);
+            margin-bottom: 15px;
+        }
+
+        .quiz-options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .quiz-btn {
+            background: white;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            padding: 14px 20px;
+            text-align: left;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: var(--text-dark);
+            width: 100%;
+        }
+
+        .quiz-btn:hover:not([disabled]) {
+            border-color: var(--user-primary);
+            background-color: #f1f5f9;
+        }
+
+        .quiz-btn.correct {
+            border-color: var(--success-color);
+            background-color: #f0fdf4;
+            color: #166534;
+            font-weight: 700;
+        }
+
+        .quiz-btn.incorrect {
+            border-color: var(--error-color);
+            background-color: #fef2f2;
+            color: #991b1b;
+        }
+
+        /* Interactive Sandbox Area Layout */
+        .sandbox-controls {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        @media (max-width: 768px) {
+            .sandbox-controls {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .input-group label {
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: var(--text-dark);
+        }
+
+        .input-group select, .input-group input {
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            font-size: 0.95rem;
+        }
+
+        /* Global UI buttons */
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background-color: var(--user-primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #102e5a;
+            transform: translateY(-1px);
+        }
+
+        .btn-accent {
+            background-color: var(--user-accent);
+            color: white;
+        }
+
+        .btn-accent:hover {
+            background-color: #a00c24;
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background-color: #e2e8f0;
+            color: var(--text-dark);
+        }
+
+        .btn-secondary:hover {
+            background-color: #cbd5e1;
+        }
+
+        .feedback-banner {
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-weight: 600;
+            display: none;
+        }
+
+        .feedback-success {
+            background-color: #dcfce7;
+            color: #15803d;
+            border: 1px solid #bbf7d0;
+            display: block;
+        }
+
+        .feedback-error {
+            background-color: #fee2e2;
+            color: #b91c1c;
+            border: 1px solid #fecaca;
+            display: block;
+        }
+
+        /* Decorative Elements */
+        .dr-text {
+            color: var(--debit-color);
+            font-weight: 700;
+        }
+
+        .cr-text {
+            color: var(--credit-color);
+            font-weight: 700;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 40px 20px;
+            border-top: 1px solid var(--border-color);
+            color: var(--text-light);
+            font-size: 0.9rem;
+            background-color: #ffffff;
+            margin-top: 60px;
+        }
+
+        /* Skip Navigation accessibility */
+        .skip-link {
+            position: absolute;
+            top: -40px;
+            left: 0;
+            background: var(--user-accent);
+            color: white;
+            padding: 8px;
+            z-index: 100;
+            transition: top 0.2s;
+        }
+        .skip-link:focus {
+            top: 0;
+        }
+    </style>
+</head>
+<body>
+
+    <a href="#main-content" class="skip-link">Skip to Main Content</a>
+
+    <header role="banner">
+        <div class="header-content">
+            <span class="professor-badge">Accounting 101 Lecture Interactive</span>
+            <h1>Demystifying Debits & Credits</h1>
+            <p>Welcome! I'm Professor Sterling. Think accounting is just dry math? Think again. It's a gorgeous visual language of balance. Let's master the rules of Debits and Credits in four easy steps without memorization panic!</p>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Navigation Menu -->
+        <nav role="navigation" aria-label="Lesson Steps">
+            <div class="nav-tabs" id="tabContainer">
+                <button class="nav-tab active" onclick="switchTab('tab-intro')" id="btn-tab-intro" aria-selected="true" aria-controls="tab-intro">1. The Equation</button>
+                <button class="nav-tab" onclick="switchTab('tab-dealer')" id="btn-tab-dealer" aria-selected="false" aria-controls="tab-dealer">2. The DEALER Rule</button>
+                <button class="nav-tab" onclick="switchTab('tab-sandbox')" id="btn-tab-sandbox" aria-selected="false" aria-controls="tab-sandbox">3. T-Account Sandbox</button>
+                <button class="nav-tab" onclick="switchTab('tab-scale')" id="btn-tab-scale" aria-selected="false" aria-controls="tab-scale">4. Live Balancing Game</button>
+                <button class="nav-tab" onclick="switchTab('tab-quiz')" id="btn-tab-quiz" aria-selected="false" aria-controls="tab-quiz">5. Concept Verification</button>
+            </div>
+        </nav>
+
+        <main id="main-content" role="main">
+
+            <!-- TAB 1: THE EQUATION -->
+            <div id="tab-intro" class="tab-panel active" role="tabpanel" aria-labelledby="btn-tab-intro">
+                <div class="card">
+                    <h2>Step 1: The Foundations of Financial Language</h2>
+                    <p>Before touching the words <strong>Debit</strong> or <strong>Credit</strong>, you must understand the primary architecture of every business on Earth: <strong>The Accounting Equation</strong>.</p>
+                    <p>Think of it as a physical law of conservation. A business cannot magically create assets (like cash or vehicles) out of thin air. They must be financed either through borrowing money from lenders (Liabilities) or investments and accumulated earnings from the business owners (Equity).</p>
+
+                    <div class="callout">
+                        <div class="callout-title">Click to Reveal Concept Details below:</div>
+                        <p style="margin: 0; font-size: 0.95rem;">Tap on any of the three components in the visual equation to explore real-world examples.</p>
+                    </div>
+
+                    <!-- Interactive Equation -->
+                    <div class="equation-grid" aria-label="Accounting Equation: Assets equals Liabilities plus Equity">
+                        <div class="equation-element" id="eq-assets" onclick="toggleEquationElement('assets')" tabindex="0" role="button" aria-expanded="false">
+                            <h3>Assets</h3>
+                            <p style="font-size:0.9rem; margin-bottom:0; color:var(--text-light);">What you OWN</p>
+                            <div class="equation-details" id="detail-assets">
+                                <strong>Examples:</strong> Cash in bank accounts, inventory for sale, delivery trucks, buildings, and accounts receivable (money customers owe you).
+                            </div>
+                        </div>
+                        
+                        <div class="equation-operator" aria-hidden="true">=</div>
+                        
+                        <div class="equation-element" id="eq-liabilities" onclick="toggleEquationElement('liabilities')" tabindex="0" role="button" aria-expanded="false">
+                            <h3>Liabilities</h3>
+                            <p style="font-size:0.9rem; margin-bottom:0; color:var(--text-light);">What you OWE</p>
+                            <div class="equation-details" id="detail-liabilities">
+                                <strong>Examples:</strong> Bank loans, mortgages, credit card balances, and accounts payable (unpaid bills to suppliers).
+                            </div>
+                        </div>
+
+                        <div class="equation-operator" aria-hidden="true">+</div>
+
+                        <div class="equation-element" id="eq-equity" onclick="toggleEquationElement('equity')" tabindex="0" role="button" aria-expanded="false">
+                            <h3>Equity</h3>
+                            <p style="font-size:0.9rem; margin-bottom:0; color:var(--text-light);">What you truly KEEP</p>
+                            <div class="equation-details" id="detail-equity">
+                                <strong>Examples:</strong> Owner investments (Capital Account) and Retained Earnings (profits kept inside the company instead of distributed).
+                            </div>
+                        </div>
+                    </div>
+
+                    <p>Every single transaction in a business keeps this scale perfectly balanced. If a business buys a $10,000 truck by taking out a bank loan, Assets go up by $10,000, and Liabilities go up by $10,000. Balance is retained!</p>
+                    
+                    <div style="text-align: right; margin-top: 30px;">
+                        <button class="btn btn-primary" onclick="switchTab('tab-dealer')">Continue to Step 2 &rarr;</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 2: THE DEALER RULE -->
+            <div id="tab-dealer" class="tab-panel" role="tabpanel" aria-labelledby="btn-tab-dealer">
+                <div class="card">
+                    <h2>Step 2: Debits & Credits are NOT "Plus & Minus"</h2>
+                    <p>The most common hurdle for new students is assuming "Debit means good/plus" and "Credit means bad/minus" because of bank statement terminology. Erase that from your mind!</p>
+                    
+                    <div class="callout" style="border-left-color: var(--user-accent);">
+                        <div class="callout-title" style="color: var(--user-accent);">The Golden Definition</div>
+                        <p style="margin: 0; font-size: 1.05rem;">
+                            <strong>Debit (Dr.)</strong> simply means <strong>LEFT SIDE</strong>.<br>
+                            <strong>Credit (Cr.)</strong> simply means <strong>RIGHT SIDE</strong>.
+                        </p>
+                    </div>
+
+                    <p>Whether a debit or credit increases or decreases an account balance depends entirely on the <em>type of account</em> it is. To memorize this instantly, we use the legendary <strong>D-E-A-L-E-R</strong> method:</p>
+
+                    <!-- DEALER acronym visual structure -->
+                    <div class="dealer-visual" aria-label="DEALER Framework visualizer">
+                        <div class="dealer-card debit-rule">
+                            <div class="dealer-letter">D</div>
+                            <div class="dealer-word">Dividends</div>
+                            <span class="rule-badge">Increases on Dr.</span>
+                        </div>
+                        <div class="dealer-card debit-rule">
+                            <div class="dealer-letter">E</div>
+                            <div class="dealer-word">Expenses</div>
+                            <span class="rule-badge">Increases on Dr.</span>
+                        </div>
+                        <div class="dealer-card debit-rule" style="border-width: 3px; box-shadow: 0 4px 12px rgba(22, 163, 74, 0.2);">
+                            <div class="dealer-letter">A</div>
+                            <div class="dealer-word">Assets</div>
+                            <span class="rule-badge">Increases on Dr.</span>
+                        </div>
+                        <div class="dealer-card credit-rule">
+                            <div class="dealer-letter">L</div>
+                            <div class="dealer-word">Liabilities</div>
+                            <span class="rule-badge">Increases on Cr.</span>
+                        </div>
+                        <div class="dealer-card credit-rule">
+                            <div class="dealer-letter">E</div>
+                            <div class="dealer-word">Equity</div>
+                            <span class="rule-badge">Increases on Cr.</span>
+                        </div>
+                        <div class="dealer-card credit-rule">
+                            <div class="dealer-letter">R</div>
+                            <div class="dealer-word">Revenue</div>
+                            <span class="rule-badge">Increases on Cr.</span>
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 25px;">
+                        <div style="background-color: var(--debit-light); border: 1px solid var(--debit-color); padding: 20px; border-radius: 8px;">
+                            <h3 style="color: var(--debit-color); margin-bottom: 8px;">The "DEA" Group (Left Side)</h3>
+                            <p style="font-size: 0.95rem; margin-bottom: 0;"><strong>Dividends, Expenses, Assets</strong> increase with a <strong>Debit</strong> (Left side entry) and decrease with a <strong>Credit</strong> (Right side entry).</p>
+                        </div>
+                        <div style="background-color: var(--credit-light); border: 1px solid var(--credit-color); padding: 20px; border-radius: 8px;">
+                            <h3 style="color: var(--credit-color); margin-bottom: 8px;">The "LER" Group (Right Side)</h3>
+                            <p style="font-size: 0.95rem; margin-bottom: 0;"><strong>Liabilities, Equity, Revenue</strong> increase with a <strong>Credit</strong> (Right side entry) and decrease with a <strong>Debit</strong> (Left side entry).</p>
+                        </div>
+                    </div>
+
+                    <div style="text-align: right; margin-top: 30px;">
+                        <button class="btn btn-secondary" onclick="switchTab('tab-intro')" style="margin-right: 10px;">&larr; Back</button>
+                        <button class="btn btn-primary" onclick="switchTab('tab-sandbox')">Try the Sandbox Sandbox &rarr;</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 3: T-ACCOUNT SANDBOX -->
+            <div id="tab-sandbox" class="tab-panel" role="tabpanel" aria-labelledby="btn-tab-sandbox">
+                <div class="card">
+                    <h2>Step 3: Interactive T-Account Sandbox</h2>
+                    <p>In accounting, we use "T-Accounts" to visualize how transaction entries flow. The Left column is always Debit, and the Right column is always Credit.</p>
+                    <p>Use the simulator controls below to select an account type from <strong>D-E-A-L-E-R</strong> and add custom dollar values to either side. Observe how the final ledger balance updates dynamically!</p>
+
+                    <!-- Simulator Controls -->
+                    <div class="interactive-zone" style="background-color: #f1f5f9; border-radius: 12px; padding: 25px;">
+                        <div class="sandbox-controls">
+                            <div class="input-group">
+                                <label for="sandbox-account-type">1. Select Account Type</label>
+                                <select id="sandbox-account-type" onchange="updateSandboxAccountRules()">
+                                    <option value="Asset" selected>Asset (Cash, Equipment etc.)</option>
+                                    <option value="Expense">Expense (Rent, Utilities)</option>
+                                    <option value="Dividend">Dividend (Payments to Owners)</option>
+                                    <option value="Liability">Liability (Loans, Unpaid Bills)</option>
+                                    <option value="Equity">Equity (Capital Stock)</option>
+                                    <option value="Revenue">Revenue (Sales, Service Fees)</option>
+                                </select>
+                            </div>
+
+                            <div class="input-group">
+                                <label for="sandbox-amount">2. Amount ($)</label>
+                                <input type="number" id="sandbox-amount" placeholder="e.g. 500" min="1">
+                            </div>
+
+                            <div class="input-group" style="justify-content: flex-end;">
+                                <div style="display: flex; gap: 10px;">
+                                    <button class="btn btn-primary" style="background-color: var(--debit-color); flex: 1;" onclick="addSandboxEntry('debit')">Post Debit (Left)</button>
+                                    <button class="btn btn-primary" style="background-color: var(--credit-color); flex: 1;" onclick="addSandboxEntry('credit')">Post Credit (Right)</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="sandbox-rule-tip" style="font-weight: 700; color: var(--user-primary); text-align: center; margin-bottom: 15px;">
+                            Selected Account: ASSET (Increases with DEBITS on Left, Decreases with CREDITS on Right)
+                        </div>
+
+                        <!-- Interactive T-Account Graphic -->
+                        <div class="t-account-container">
+                            <div class="t-account-header" id="sandbox-t-title">General Ledger: Cash Account (Asset)</div>
+                            <div class="t-account-split">
+                                <div class="t-side debit-side">
+                                    <div class="side-label">
+                                        <span>Debit (Dr.)</span>
+                                        <span class="abbr" id="dr-increase-label">(+) Increase</span>
+                                    </div>
+                                    <div class="t-items" id="sandbox-debits">
+                                        <!-- Debits go here -->
+                                        <div class="t-item" id="empty-dr-msg" style="color:var(--text-light); font-weight:normal; justify-content:center; border:none; font-family:inherit;">No Debit entries</div>
+                                    </div>
+                                </div>
+                                <div class="t-side credit-side">
+                                    <div class="side-label">
+                                        <span>Credit (Cr.)</span>
+                                        <span class="abbr" id="cr-decrease-label">(-) Decrease</span>
+                                    </div>
+                                    <div class="t-items" id="sandbox-credits">
+                                        <!-- Credits go here -->
+                                        <div class="t-item" id="empty-cr-msg" style="color:var(--text-light); font-weight:normal; justify-content:center; border:none; font-family:inherit;">No Credit entries</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="t-footer-balance">
+                                <div class="t-balance-side" style="border-right: 2px solid #94a3b8; text-align: left;" id="total-dr-box">
+                                    Total Dr: <span id="total-dr">$0</span>
+                                </div>
+                                <div class="t-balance-side" style="text-align: right;" id="total-cr-box">
+                                    Total Cr: <span id="total-cr">$0</span>
+                                </div>
+                            </div>
+                            <div style="background-color: #e2e8f0; text-align: center; padding: 12px; font-weight: 800; font-size: 1.15rem; color: var(--user-primary);" id="sandbox-final-balance">
+                                Net Ending Balance: $0 (Debit Balance)
+                            </div>
+                        </div>
+
+                        <div style="text-align: center;">
+                            <button class="btn btn-secondary" onclick="clearSandbox()">Reset Sandbox Ledger</button>
+                        </div>
+                    </div>
+
+                    <div style="text-align: right; margin-top: 30px;">
+                        <button class="btn btn-secondary" onclick="switchTab('tab-dealer')" style="margin-right: 10px;">&larr; Back</button>
+                        <button class="btn btn-primary" onclick="switchTab('tab-scale')">Play Balancing Game &rarr;</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 4: THE BALANCING SCALE GAME -->
+            <div id="tab-scale" class="tab-panel" role="tabpanel" aria-labelledby="btn-tab-scale">
+                <div class="card">
+                    <h2>Step 4: The Golden Rule of Double-Entry</h2>
+                    <p>In double-entry accounting, <strong>every transaction must balance</strong>. If you record an entry with a total of $5,000 in Debits, you *MUST* record a total of $5,000 in Credits. The balance scale cannot tilt!</p>
+                    
+                    <p>Imagine your company is completing three accounting tasks. Use the Journal Entry builder below to select the appropriate accounts and type in values. Watch how the real-time visual balance scale responds to your logic!</p>
+
+                    <!-- Visual scale simulation container -->
+                    <div class="scale-section">
+                        <h3>Visual General Ledger Scale</h3>
+                        <p style="font-size: 0.9rem; color: var(--text-light); margin-bottom: 15px;">Will your debits and credits balance, or will the financial scales tip?</p>
+                        
+                        <div class="scale-graphic-container">
+                            <div class="scale-beam" id="scaleBeam">
+                                <div class="scale-pan scale-pan-left" id="scalePanLeft">
+                                    <div class="pan-content">Dr. <span id="scaleDrVal">$0</span></div>
+                                </div>
+                                <div class="scale-pan scale-pan-right" id="scalePanRight">
+                                    <div class="pan-content">Cr. <span id="scaleCrVal">$0</span></div>
+                                </div>
+                            </div>
+                            <div class="scale-pillar"></div>
+                            <div class="scale-base"></div>
+                        </div>
+
+                        <div id="scaleStatusText" style="font-weight: 800; margin-top: 15px; font-size: 1.1rem; color: var(--user-accent);">
+                            No Entries Posted Yet (Scale is Neutral)
+                        </div>
+                    </div>
+
+                    <!-- Journal challenges selector -->
+                    <div style="margin: 25px 0;">
+                        <label for="active-scenario" style="font-weight: 700; margin-bottom: 8px; display: block;">Select Real-World Business Scenario to Post:</label>
+                        <select id="active-scenario" style="padding: 12px; width: 100%; border-radius: 8px; font-size: 1.05rem; border: 2px solid var(--user-primary);" onchange="loadScenario()">
+                            <option value="0">Scenario 1: Owner invests $15,000 Cash to start the business.</option>
+                            <option value="1">Scenario 2: Company buys a computer for $2,500 Cash.</option>
+                            <option value="2">Scenario 3: Company receives utility bill for $450 to be paid next month.</option>
+                        </select>
+                    </div>
+
+                    <div style="background-color: var(--bg-light); border: 1px solid var(--border-color); padding: 25px; border-radius: 12px;">
+                        <h4 id="scenario-descr" style="font-size: 1.15rem; color: var(--user-primary); margin-bottom: 15px;">
+                            Scenario Description will populate here...
+                        </h4>
+
+                        <!-- Real-time challenge input -->
+                        <table class="journal-table" aria-label="Journal entry input form">
+                            <thead>
+                                <tr>
+                                    <th>Account Name</th>
+                                    <th>Type</th>
+                                    <th style="width: 150px; text-align: right;">Debit ($)</th>
+                                    <th style="width: 150px; text-align: right;">Credit ($)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="journal-row">
+                                    <td>
+                                        <select id="journal-acc-1" onchange="updateRowTypeLabel(1)">
+                                            <option value="">-- Choose Account --</option>
+                                            <option value="Cash">Cash (Asset)</option>
+                                            <option value="Capital">Owner's Capital (Equity)</option>
+                                            <option value="Equipment">Equipment (Asset)</option>
+                                            <option value="Accounts Payable">Accounts Payable (Liability)</option>
+                                            <option value="Utilities Expense">Utilities Expense (Expense)</option>
+                                        </select>
+                                    </td>
+                                    <td><span class="status-pill" id="row-type-1" style="background-color: #cbd5e1; color:#1e293b;">N/A</span></td>
+                                    <td><input type="number" id="journal-dr-1" placeholder="0" oninput="calculateJournalTotals()"></td>
+                                    <td><input type="number" id="journal-cr-1" placeholder="0" oninput="calculateJournalTotals()"></td>
+                                </tr>
+                                <tr class="journal-row">
+                                    <td>
+                                        <select id="journal-acc-2" onchange="updateRowTypeLabel(2)">
+                                            <option value="">-- Choose Account --</option>
+                                            <option value="Cash">Cash (Asset)</option>
+                                            <option value="Capital">Owner's Capital (Equity)</option>
+                                            <option value="Equipment">Equipment (Asset)</option>
+                                            <option value="Accounts Payable">Accounts Payable (Liability)</option>
+                                            <option value="Utilities Expense">Utilities Expense (Expense)</option>
+                                        </select>
+                                    </td>
+                                    <td><span class="status-pill" id="row-type-2" style="background-color: #cbd5e1; color:#1e293b;">N/A</span></td>
+                                    <td><input type="number" id="journal-dr-2" placeholder="0" oninput="calculateJournalTotals()"></td>
+                                    <td><input type="number" id="journal-cr-2" placeholder="0" oninput="calculateJournalTotals()"></td>
+                                </tr>
+                            </tbody>
+                            <tfoot>
+                                <tr style="background-color: #f1f5f9; font-weight: 700;">
+                                    <td colspan="2" style="text-align: right; padding: 12px;">Journal Totals:</td>
+                                    <td style="text-align: right; padding: 12px; font-family: monospace;" id="total-j-debit">$0</td>
+                                    <td style="text-align: right; padding: 12px; font-family: monospace;" id="total-j-credit">$0</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+
+                        <div id="journal-feedback" class="feedback-banner"></div>
+
+                        <div style="margin-top: 25px; display: flex; gap: 15px; justify-content: flex-end;">
+                            <button class="btn btn-secondary" onclick="resetActiveJournal()">Clear Rows</button>
+                            <button class="btn btn-accent" onclick="submitJournalEntry()">Post Journal to General Ledger</button>
+                        </div>
+                    </div>
+
+                    <div style="text-align: right; margin-top: 30px;">
+                        <button class="btn btn-secondary" onclick="switchTab('tab-sandbox')" style="margin-right: 10px;">&larr; Back</button>
+                        <button class="btn btn-primary" onclick="switchTab('tab-quiz'">Verify Your Knowledge &rarr;</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 5: PROGRESS QUIZ -->
+            <div id="tab-quiz" class="tab-panel" role="tabpanel" aria-labelledby="btn-tab-quiz">
+                <div class="card">
+                    <h2>Step 5: Quick Quiz - Test Your Accounting Superpower</h2>
+                    <p>Great accountants aren't born; they practice! Test your intuition on the fundamentals of Double-Entry bookkeeping below.</p>
+
+                    <!-- Quiz Question 1 -->
+                    <div class="quiz-card">
+                        <div class="quiz-question">Question 1: If a business buys $3,000 of office equipment (an Asset) using cash (an Asset), how do we record this in the general journal?</div>
+                        <div class="quiz-options">
+                            <button class="quiz-btn" onclick="submitQuizAnswer(this, 'correct', 'q1-feedback', 'Excellent! Debit the asset Equipment to increase it; Credit the asset Cash to decrease it. Perfect balance!')">Debit Equipment $3,000; Credit Cash $3,000</button>
+                            <button class="quiz-btn" onclick="submitQuizAnswer(this, 'incorrect', 'q1-feedback', 'Incorrect. Remember that both Cash and Equipment are Assets. Recording a Debit to both would mean our overall scale is tilted and doesn\'t balance with Credit.')">Debit Equipment $3,000; Debit Cash $3,000</button>
+                            <button class="quiz-btn" onclick="submitQuizAnswer(this, 'incorrect', 'q1-feedback', 'Incorrect. Credit decreases an Asset (Cash). Debiting Equipment increases the assets of equipment. Think about DEALER rules.')">Credit Equipment $3,000; Debit Cash $3,000</button>
+                        </div>
+                        <div id="q1-feedback" class="feedback-banner"></div>
+                    </div>
+
+                    <!-- Quiz Question 2 -->
+                    <div class="quiz-card">
+                        <div class="quiz-question">Question 2: According to the DEALER rules, which of these groups will increase using a CREDIT entry?</div>
+                        <div class="quiz-options">
+                            <button class="quiz-btn" onclick="submitQuizAnswer(this, 'incorrect', 'q2-feedback', 'Incorrect. These are the DEA (Dividends, Expenses, Assets) accounts that increase with a Debit (Left side).')">Dividends, Expenses, Assets</button>
+                            <button class="quiz-btn" onclick="submitQuizAnswer(this, 'correct', 'q2-feedback', 'Spot on! Liabilities, Equity, and Revenue (LER) are Credit-increase accounts.')">Liabilities, Equity, Revenue</button>
+                            <button class="quiz-btn" onclick="submitQuizAnswer(this, 'incorrect', 'q2-feedback', 'Incorrect. Revenue increases with Credit, but Assets and Expenses increase with Debit.')">Revenue, Assets, Expenses</button>
+                        </div>
+                        <div id="q2-feedback" class="feedback-banner"></div>
+                    </div>
+
+                    <!-- Quiz Question 3 -->
+                    <div class="quiz-card">
+                        <div class="quiz-question">Question 3: If your debits do not equal your credits at the end of a physical day, what is true?</div>
+                        <div class="quiz-options">
+                            <button class="quiz-btn" onclick="submitQuizAnswer(this, 'incorrect', 'q3-feedback', 'Incorrect. The system can run but the accounting logs are structurally invalid and illegal.')">It is normal as long as the numbers are close.</button>
+                            <button class="quiz-btn" onclick="submitQuizAnswer(this, 'incorrect', 'q3-feedback', 'Incorrect. In double-entry systems, Debits and Credits must always balance, no matter the net performance of the company.')">It means the company made a net profit.</button>
+                            <button class="quiz-btn" onclick="submitQuizAnswer(this, 'correct', 'q3-feedback', 'Absolutely! If Debits do not equal Credits, there has been an entry mistake, and the accounting system cannot balance.')">An error has occurred; the books are broken and out of balance.</button>
+                        </div>
+                        <div id="q3-feedback" class="feedback-banner"></div>
+                    </div>
+
+                    <div style="text-align: center; margin-top: 40px;">
+                        <h3 style="color: var(--user-primary); margin-bottom: 10px;">Amazing Progress!</h3>
+                        <p style="max-width: 600px; margin: 0 auto 20px auto;">You've completed the interactive Professor Sterling accounting lecture guide. Apply these principles, remember <strong>DEALER</strong>, and you'll ace every accounting exam in your path.</p>
+                        <button class="btn btn-accent" onclick="restartLesson()">Restart Lecture Guide</button>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <footer role="contentinfo">
+        <p>&copy; 2026 Career & Technical Education Interactive Materials. All Rights Reserved.</p>
+        <p style="font-size: 0.8rem; margin-top: 10px; color: var(--text-light);">Designed to WCAG 2.1 AA accessibility guidelines. No transcription/media overrides required.</p>
+    </footer>
+
+    <script>
+        // Global State variables for the Sandbox
+        let sandboxDebits = [];
+        let sandboxCredits = [];
+        
+        // Scenario descriptions and solutions
+        const scenarios = [
+            {
+                description: "Scenario 1: You are starting a local tech consulting firm. The owner (you!) invests <strong>$15,000 Cash</strong> from their personal checking account into the business. <em>Hint: Cash (Asset) goes up, Capital (Equity) goes up.</em>",
+                solutions: [
+                    { acc: "Cash", dr: 15000, cr: 0 },
+                    { acc: "Capital", dr: 0, cr: 15000 }
+                ]
+            },
+            {
+                description: "Scenario 2: The company buys a brand new development workstation (<strong>Equipment</strong>) costing <strong>$2,500 Cash</strong>. <em>Hint: One Asset goes up, another Asset goes down!</em>",
+                solutions: [
+                    { acc: "Equipment", dr: 2500, cr: 0 },
+                    { acc: "Cash", dr: 0, cr: 2500 }
+                ]
+            },
+            {
+                description: "Scenario 3: The company receives a <strong>$450 electric utility bill</strong>. It will be paid next month, creating a liability. <em>Hint: Utilities Expense goes up, Accounts Payable goes up.</em>",
+                solutions: [
+                    { acc: "Utilities Expense", dr: 450, cr: 0 },
+                    { acc: "Accounts Payable", dr: 0, cr: 450 }
+                ]
+            }
+        ];
+
+        // On Load initialization
+        window.onload = function() {
+            loadScenario();
+            updateSandboxAccountRules();
+        };
+
+        // Navigation Tabs Engine
+        function switchTab(tabId) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-panel').forEach(panel => {
+                panel.classList.remove('active');
+            });
+            // Show target
+            document.getElementById(tabId).classList.add('active');
+
+            // Toggle selected tabs visual state
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('active');
+                tab.setAttribute('aria-selected', 'false');
+            });
+
+            const activeTabButton = document.getElementById(`btn-${tabId}`);
+            if (activeTabButton) {
+                activeTabButton.classList.add('active');
+                activeTabButton.setAttribute('aria-selected', 'true');
+            }
+
+            // Scroll safely back to top of main container for seamless UX
+            window.scrollTo({ top: 150, behavior: 'smooth' });
+        }
+
+        // Equation Card toggle mechanics
+        function toggleEquationElement(type) {
+            const card = document.getElementById(`eq-${type}`);
+            const isCurrentlyActive = card.classList.contains('active');
+            
+            // Deactivate all first
+            document.querySelectorAll('.equation-element').forEach(el => {
+                el.classList.remove('active');
+                el.setAttribute('aria-expanded', 'false');
+            });
+
+            // Toggle active state
+            if (!isCurrentlyActive) {
+                card.classList.add('active');
+                card.setAttribute('aria-expanded', 'true');
+            }
+        }
+
+        // Sandbox Account rule tip updater
+        function updateSandboxAccountRules() {
+            const type = document.getElementById('sandbox-account-type').value;
+            const tip = document.getElementById('sandbox-rule-tip');
+            const drLabel = document.getElementById('dr-increase-label');
+            const crLabel = document.getElementById('cr-decrease-label');
+            const title = document.getElementById('sandbox-t-title');
+
+            let behavior = "";
+            let drSign = "(+) Increase";
+            let crSign = "(-) Decrease";
+
+            if (type === "Asset" || type === "Expense" || type === "Dividend") {
+                behavior = `${type.toUpperCase()} (Increases with DEBITS on Left, Decreases with CREDITS on Right)`;
+                drSign = "(+) Increase";
+                crSign = "(-) Decrease";
+            } else {
+                behavior = `${type.toUpperCase()} (Increases with CREDITS on Right, Decreases with DEBITS on Left)`;
+                drSign = "(-) Decrease";
+                crSign = "(+) Increase";
+            }
+
+            tip.textContent = `Selected Account Rule: ${behavior}`;
+            drLabel.textContent = drSign;
+            crLabel.textContent = crSign;
+            title.textContent = `General Ledger: Sample ${type} Account`;
+
+            // Rerender values to verify alignment
+            calculateSandboxTotals();
+        }
+
+        // Sandbox Add Entry mechanics
+        function addSandboxEntry(side) {
+            const amountInput = document.getElementById('sandbox-amount');
+            const value = parseFloat(amountInput.value);
+
+            if (isNaN(value) || value <= 0) {
+                // Safe browser warning system replacing standard alerts
+                const tip = document.getElementById('sandbox-rule-tip');
+                tip.innerHTML = "<span style='color: var(--user-accent);'>Please enter a valid, positive amount first.</span>";
+                setTimeout(updateSandboxAccountRules, 3000);
+                return;
+            }
+
+            if (side === 'debit') {
+                sandboxDebits.push(value);
+            } else {
+                sandboxCredits.push(value);
+            }
+
+            amountInput.value = ""; // clear
+            renderSandboxEntries();
+        }
+
+        function renderSandboxEntries() {
+            const drContainer = document.getElementById('sandbox-debits');
+            const crContainer = document.getElementById('sandbox-credits');
+
+            // Reset containers
+            drContainer.innerHTML = "";
+            crContainer.innerHTML = "";
+
+            if (sandboxDebits.length === 0) {
+                drContainer.innerHTML = `<div class="t-item" id="empty-dr-msg" style="color:var(--text-light); font-weight:normal; justify-content:center; border:none; font-family:inherit;">No Debit entries</div>`;
+            } else {
+                sandboxDebits.forEach((val, idx) => {
+                    drContainer.innerHTML += `<div class="t-item"><span>Entry #${idx + 1}</span><span>$${val.toLocaleString()}</span></div>`;
+                });
+            }
+
+            if (sandboxCredits.length === 0) {
+                crContainer.innerHTML = `<div class="t-item" id="empty-cr-msg" style="color:var(--text-light); font-weight:normal; justify-content:center; border:none; font-family:inherit;">No Credit entries</div>`;
+            } else {
+                sandboxCredits.forEach((val, idx) => {
+                    crContainer.innerHTML += `<div class="t-item"><span>Entry #${idx + 1}</span><span>$${val.toLocaleString()}</span></div>`;
+                });
+            }
+
+            calculateSandboxTotals();
+        }
+
+        function calculateSandboxTotals() {
+            const totalDr = sandboxDebits.reduce((acc, curr) => acc + curr, 0);
+            const totalCr = sandboxCredits.reduce((acc, curr) => acc + curr, 0);
+
+            document.getElementById('total-dr').textContent = `$${totalDr.toLocaleString()}`;
+            document.getElementById('total-cr').textContent = `$${totalCr.toLocaleString()}`;
+
+            const type = document.getElementById('sandbox-account-type').value;
+            const balanceBox = document.getElementById('sandbox-final-balance');
+
+            let netBal = 0;
+            let finalSide = "Debit Balance";
+
+            // If Asset/Expense/Dividend, Normal balance is Debit (Dr - Cr)
+            if (type === "Asset" || type === "Expense" || type === "Dividend") {
+                netBal = totalDr - totalCr;
+                finalSide = netBal >= 0 ? "Debit Balance" : "Credit Balance";
+            } else {
+                // Liabilities/Equity/Revenue, Normal balance is Credit (Cr - Dr)
+                netBal = totalCr - totalDr;
+                finalSide = netBal >= 0 ? "Credit Balance" : "Debit Balance";
+            }
+
+            balanceBox.textContent = `Net Ending Balance: $${Math.abs(netBal).toLocaleString()} (${finalSide})`;
+        }
+
+        function clearSandbox() {
+            sandboxDebits = [];
+            sandboxCredits = [];
+            renderSandboxEntries();
+        }
+
+        // Real-time Balance scale simulator game mechanics
+        function loadScenario() {
+            const idx = parseInt(document.getElementById('active-scenario').value);
+            document.getElementById('scenario-descr').innerHTML = scenarios[idx].description;
+            resetActiveJournal();
+        }
+
+        function resetActiveJournal() {
+            // Reset selectors & inputs
+            document.getElementById('journal-acc-1').value = "";
+            document.getElementById('journal-acc-2').value = "";
+            document.getElementById('journal-dr-1').value = "";
+            document.getElementById('journal-cr-1').value = "";
+            document.getElementById('journal-dr-2').value = "";
+            document.getElementById('journal-cr-2').value = "";
+
+            document.getElementById('row-type-1').textContent = "N/A";
+            document.getElementById('row-type-1').style.backgroundColor = "#cbd5e1";
+            document.getElementById('row-type-2').textContent = "N/A";
+            document.getElementById('row-type-2').style.backgroundColor = "#cbd5e1";
+
+            document.getElementById('journal-feedback').style.display = "none";
+
+            calculateJournalTotals();
+        }
+
+        function updateRowTypeLabel(rowId) {
+            const acc = document.getElementById(`journal-acc-${rowId}`).value;
+            const label = document.getElementById(`row-type-${rowId}`);
+
+            if (!acc) {
+                label.textContent = "N/A";
+                label.style.backgroundColor = "#cbd5e1";
+                label.style.color = "#1e293b";
+                return;
+            }
+
+            // Assign type labels based on simple ledger lists
+            if (acc === "Cash" || acc === "Equipment") {
+                label.textContent = "Asset";
+                label.style.backgroundColor = "var(--debit-light)";
+                label.style.color = "var(--debit-color)";
+            } else if (acc === "Capital") {
+                label.textContent = "Equity";
+                label.style.backgroundColor = "var(--credit-light)";
+                label.style.color = "var(--credit-color)";
+            } else if (acc === "Accounts Payable") {
+                label.textContent = "Liability";
+                label.style.backgroundColor = "var(--credit-light)";
+                label.style.color = "var(--credit-color)";
+            } else if (acc === "Utilities Expense") {
+                label.textContent = "Expense";
+                label.style.backgroundColor = "var(--debit-light)";
+                label.style.color = "var(--debit-color)";
+            }
+        }
+
+        function calculateJournalTotals() {
+            const dr1 = parseFloat(document.getElementById('journal-dr-1').value) || 0;
+            const cr1 = parseFloat(document.getElementById('journal-cr-1').value) || 0;
+            const dr2 = parseFloat(document.getElementById('journal-dr-2').value) || 0;
+            const cr2 = parseFloat(document.getElementById('journal-cr-2').value) || 0;
+
+            const totalDr = dr1 + dr2;
+            const totalCr = cr1 + cr2;
+
+            document.getElementById('total-j-debit').textContent = `$${totalDr.toLocaleString()}`;
+            document.getElementById('total-j-credit').textContent = `$${totalCr.toLocaleString()}`;
+
+            updateVisualScale(totalDr, totalCr);
+        }
+
+        function updateVisualScale(totalDr, totalCr) {
+            const beam = document.getElementById('scaleBeam');
+            const leftPan = document.getElementById('scalePanLeft');
+            const rightPan = document.getElementById('scalePanRight');
+            const status = document.getElementById('scaleStatusText');
+
+            document.getElementById('scaleDrVal').textContent = `$${totalDr.toLocaleString()}`;
+            document.getElementById('scaleCrVal').textContent = `$${totalCr.toLocaleString()}`;
+
+            // Calculate rotation angle
+            let rotation = 0;
+            if (totalDr > totalCr) {
+                // Tilted to the left (heavy debits)
+                const difference = totalDr - totalCr;
+                rotation = Math.min(-5 - (difference / 1000), -20); // cap max tilt
+                status.textContent = "Scale is Out of Balance: Heavy DEBITS (Left Side)";
+                status.style.color = "var(--debit-color)";
+            } else if (totalCr > totalDr) {
+                // Tilted to the right (heavy credits)
+                const difference = totalCr - totalDr;
+                rotation = Math.min(5 + (difference / 1000), 20); // cap max tilt
+                status.textContent = "Scale is Out of Balance: Heavy CREDITS (Right Side)";
+                status.style.color = "var(--credit-color)";
+            } else if (totalDr > 0 && totalDr === totalCr) {
+                // Perfectly balanced
+                rotation = 0;
+                status.textContent = "Scale is Balanced! (Debits = Credits)";
+                status.style.color = "var(--success-color)";
+            } else {
+                // Neutral zero
+                rotation = 0;
+                status.textContent = "Scale is Neutral (No Entries)";
+                status.style.color = "var(--text-light)";
+            }
+
+            // Apply transformations
+            beam.style.transform = `rotate(${rotation}deg)`;
+            
+            // Keep pans level despite beam tilt
+            leftPan.style.transform = `rotate(${-rotation}deg)`;
+            rightPan.style.transform = `rotate(${-rotation}deg)`;
+        }
+
+        function submitJournalEntry() {
+            const acc1 = document.getElementById('journal-acc-1').value;
+            const dr1 = parseFloat(document.getElementById('journal-dr-1').value) || 0;
+            const cr1 = parseFloat(document.getElementById('journal-cr-1').value) || 0;
+
+            const acc2 = document.getElementById('journal-acc-2').value;
+            const dr2 = parseFloat(document.getElementById('journal-dr-2').value) || 0;
+            const cr2 = parseFloat(document.getElementById('journal-cr-2').value) || 0;
+
+            const feedback = document.getElementById('journal-feedback');
+            const scenarioIdx = parseInt(document.getElementById('active-scenario').value);
+            const targetSolution = scenarios[scenarioIdx].solutions;
+
+            // Basic double entry balance validation
+            const totalDr = dr1 + dr2;
+            const totalCr = cr1 + cr2;
+
+            if (!acc1 || !acc2) {
+                feedback.textContent = "Invalid Entry. You must choose accounts for both lines.";
+                feedback.className = "feedback-banner feedback-error";
+                return;
+            }
+
+            if (totalDr === 0 && totalCr === 0) {
+                feedback.textContent = "Invalid Entry. Values cannot be zero.";
+                feedback.className = "feedback-banner feedback-error";
+                return;
+            }
+
+            if (totalDr !== totalCr) {
+                feedback.textContent = "Error: System Refused Posting. Your Debits do not equal your Credits! The scale must balance to submit.";
+                feedback.className = "feedback-banner feedback-error";
+                return;
+            }
+
+            // Scenario Solution verification
+            // Search matching transaction elements in either order row
+            let solved = false;
+            const attempt = [
+                { acc: acc1, dr: dr1, cr: cr1 },
+                { acc: acc2, dr: dr2, cr: cr2 }
+            ];
+
+            // Order independent verification logic
+            const matchRow1 = attempt.find(r => r.acc === targetSolution[0].acc && r.dr === targetSolution[0].dr && r.cr === targetSolution[0].cr);
+            const matchRow2 = attempt.find(r => r.acc === targetSolution[1].acc && r.dr === targetSolution[1].dr && r.cr === targetSolution[1].cr);
+
+            if (matchRow1 && matchRow2) {
+                solved = true;
+            }
+
+            if (solved) {
+                feedback.innerHTML = "<h4>Excellent Work!</h4>The entry is conceptually perfect and balances the general ledger scale correctly.";
+                feedback.className = "feedback-banner feedback-success";
+            } else {
+                feedback.innerHTML = "<h4>Balanced but Incorrect Accounts/Values</h4>Your Debits equals your Credits, so the scale balances, but those are not the correct accounts or amounts to model this specific scenario. Review the scenario hint and try again!";
+                feedback.className = "feedback-banner feedback-error";
+            }
+        }
+
+        // Quiz Logic Engine
+        function submitQuizAnswer(button, type, feedbackId, text) {
+            const card = button.parentElement;
+            const feedback = document.getElementById(feedbackId);
+            
+            // Disable other buttons in the same card
+            card.querySelectorAll('.quiz-btn').forEach(btn => {
+                btn.disabled = true;
+            });
+
+            if (type === 'correct') {
+                button.classList.add('correct');
+                feedback.textContent = text;
+                feedback.className = "feedback-banner feedback-success";
+            } else {
+                button.classList.add('incorrect');
+                feedback.textContent = text;
+                feedback.className = "feedback-banner feedback-error";
+                
+                // Highlight correct button
+                card.querySelectorAll('.quiz-btn').forEach(btn => {
+                    if (btn.onclick.toString().includes('correct')) {
+                        btn.classList.add('correct');
+                    }
+                });
+            }
+        }
+
+        function restartLesson() {
+            // Reset Quiz State
+            document.querySelectorAll('.quiz-btn').forEach(btn => {
+                btn.disabled = false;
+                btn.classList.remove('correct', 'incorrect');
+            });
+            document.querySelectorAll('.feedback-banner').forEach(el => {
+                el.style.display = "none";
+                el.textContent = "";
+            });
+
+            // Reset sandbox and scenario selectors
+            clearSandbox();
+            document.getElementById('active-scenario').value = "0";
+            loadScenario();
+
+            switchTab('tab-intro');
+        }
+    </script>
+</body>
+</html>
