@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TCP/IP 3-Way Handshake Practice</title>
+    <style>
+        :root {
+            --primary-blue: #004a99;
+            --secondary-blue: #007bff;
+            --bg-blue: #e6f0fa;
+            --text-color: #333;
+            --border-color: #99c2ff;
+            --success-color: #28a745;
+            --error-color: #dc3545;
+            --shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f4f8;
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            max-width: 900px;
+            width: 100%;
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+        }
+
+        h1, h2 {
+            text-align: center;
+            color: var(--primary-blue);
+        }
+
+        .header-banner {
+            border-bottom: 2px solid var(--primary-blue);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+        }
+
+        .objective-panel {
+            background-color: var(--bg-blue);
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 20px;
+        }
+
+        .network-view {
+            display: flex;
+            justify-content: space-around;
+            align-items: flex-start;
+            margin-bottom: 30px;
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            border-radius: 8px;
+            background-color: #fafafa;
+        }
+
+        .device {
+            text-align: center;
+            width: 40%;
+            position: relative;
+        }
+
+        .device-icon {
+            font-size: 4rem;
+            color: var(--secondary-blue);
+            margin-bottom: 10px;
+        }
+
+        .device-title {
+            font-weight: bold;
+            font-size: 1.2rem;
+            color: var(--primary-blue);
+        }
+
+        .state-badge {
+            display: inline-block;
+            padding: 5px 10px;
+            background-color: #ccc;
+            color: white;
+            border-radius: 4px;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+
+        .state-listen { background-color: #ffc107; color: #333; }
+        .state-syn-sent { background-color: var(--secondary-blue); }
+        .state-syn-received { background-color: #17a2b8; }
+        .state-established { background-color: var(--success-color); }
+        .state-closed { background-color: #dc3545; }
+
+        .control-panel {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .control-step {
+            flex: 1;
+            padding: 15px;
+            background-color: var(--bg-blue);
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            position: relative;
+            transition: background-color 0.3s;
+        }
+
+        .control-step.disabled {
+            background-color: #eee;
+            border-color: #ccc;
+            opacity: 0.7;
+        }
+
+        .control-step.disabled .locked-overlay {
+            display: flex;
+        }
+
+        .locked-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(238,238,238,0.8);
+            color: #777;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            border-radius: 8px;
+            z-index: 2;
+        }
+
+        .step-header {
+            color: var(--primary-blue);
+            font-weight: bold;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+
+        .form-group {
+            margin-bottom: 10px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 3px;
+            font-size: 0.9rem;
+        }
+
+        input, select {
+            width: calc(100% - 16px);
+            padding: 6px 8px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-family: inherit;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: var(--secondary-blue);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            margin-top: 10px;
+        }
+
+        button:hover { background-color: var(--primary-blue); }
+        button:disabled { background-color: #ccc; cursor: not-allowed; }
+
+        #packet {
+            position: absolute;
+            background-color: var(--primary-blue);
+            color: white;
+            font-weight: bold;
+            padding: 5px 15px;
+            border-radius: 4px;
+            display: none;
+            z-index: 10;
+        }
+
+        .message-area {
+            min-height: 50px;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border-color);
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .msg-init { background-color: var(--bg-blue); color: #333; }
+        .msg-success { background-color: #d4edda; color: var(--success-color); border-color: #c3e6cb; }
+        .msg-error { background-color: #f8d7da; color: var(--error-color); border-color: #f5c6cb; }
+
+        .footer {
+            font-size: 0.85rem;
+            color: #777;
+            text-align: center;
+            border-top: 1px solid #ccc;
+            padding-top: 10px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header-banner">
+        <h1>TCP/IP 3-WAY HANDSHAKE PRACTICE TOOL</h1>
+    </div>
+
+    <div class="objective-panel">
+        <strong>GOAL:</strong> Establish a reliable connection between the Client and the Server by constructing and sending the correct sequence of TCP packets.
+    </div>
+
+    <div class="network-view">
+        <div class="device" id="client">
+            <div class="device-icon">&#128187;</div> <!-- Computer Icon -->
+            <div class="device-title">CLIENT</div>
+            <div class="device-subtitle">(Source Computer)</div>
+            <div class="state-badge state-closed" id="clientState">CLOSED</div>
+        </div>
+
+        <div id="packet"></div> <!-- Animated Packet -->
+
+        <div class="device" id="server">
+            <div class="device-icon">&#9906;</div> <!-- Server Rack Icon -->
+            <div class="device-title">SERVER</div>
+            <div class="device-subtitle">(Destination Computer)</div>
+            <div class="state-badge state-listen" id="serverState">LISTEN</div>
+        </div>
+    </div>
+
+    <div class="message-area msg-init" id="message">SYSTEM INITIALIZED: Please configure and send the initial connection request (SYN) from the Client to the Server.</div>
+
+    <div class="control-panel">
+        <!-- STEP 1: CLIENT INIT -->
+        <div class="control-step" id="step1">
+            <div class="step-header">STEP 1:</div>
+            <div class="form-group">
+                <label>Packet Type:</label>
+                <select id="p1Type">
+                    <option value="SYN">SYN (Synchronize)</option>
+                    <option value="ACK">ACK</option>
+                    <option value="SYN-ACK">SYN-ACK</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Sequence Number (Seq):</label>
+                <input type="number" id="p1Seq" placeholder="e.g., 100" value="100">
+            </div>
+            <div class="form-group">
+                <label>Acknowledgment Number (Ack):</label>
+                <input type="number" id="p1Ack" placeholder="e.g., 0" value="0">
+            </div>
+            <button id="send1Btn" onclick="trySendStep1()">SEND SYN PACKET</button>
+        </div>
+
+        <!-- STEP 2: SERVER RESPONSE -->
+        <div class="control-step disabled" id="step2">
+            <div class="locked-overlay">Complete Step 1 to unlock</div>
+            <div class="step-header">STEP 2:</div>
+            <div class="form-group">
+                <label>Packet Type:</label>
+                <select id="p2Type">
+                    <option value="SYN-ACK">SYN-ACK (Locked)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Sequence Number (Seq):</label>
+                <input type="number" id="p2Seq" placeholder="e.g., 5000">
+            </div>
+            <div class="form-group">
+                <label>Acknowledgment Number (Ack):</label>
+                <input type="number" id="p2Ack" placeholder="e.g., 101">
+            </div>
+            <button id="send2Btn" onclick="trySendStep2()" disabled>SEND SYN-ACK</button>
+        </div>
+
+        <!-- STEP 3: CLIENT FINAL ACK -->
+        <div class="control-step disabled" id="step3">
+            <div class="locked-overlay">Complete Step 2 to unlock</div>
+            <div class="step-header">STEP 3:</div>
+            <div class="form-group">
+                <label>Packet Type:</label>
+                <select id="p3Type">
+                    <option value="ACK">ACK (Locked)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Sequence Number (Seq):</label>
+                <input type="number" id="p3Seq" placeholder="e.g., 101">
+            </div>
+            <div class="form-group">
+                <label>Acknowledgment Number (Ack):</label>
+                <input type="number" id="p3Ack" placeholder="e.g., 5001">
+            </div>
+            <button id="send3Btn" onclick="trySendStep3()" disabled>SEND FINAL ACK</button>
+        </div>
+    </div>
+
+    <div class="footer">
+        Sources: RFC 793, Networking Fundamentals Textbooks. Learn more: [Academic Link]. 
+        Dummy here connections na linousiness. Sources: RFC 793, Networking Fundamentals Textbooks. 
+        Learn more: [Academic Link].
+    </div>
+
+</div>
+
+<script>
+    // State Tracking
+    let clientSeq = 0;
+    let serverSeq = 0;
+    let step1Complete = false;
+    let step2Complete = false;
+
+    // UI Elements
+    const clientStateEl = document.getElementById('clientState');
+    const serverStateEl = document.getElementById('serverState');
+    const messageEl = document.getElementById('message');
+    const packetEl = document.getElementById('packet');
+
+    const step1Panel = document.getElementById('step1');
+    const step2Panel = document.getElementById('step2');
+    const step3Panel = document.getElementById('step3');
+
+    // Helper: Update Device States
+    function updateStates(cState, sState) {
+        // Clear old classes
+        clientStateEl.className = 'state-badge';
+        serverStateEl.className = 'state-badge';
+
+        clientStateEl.textContent = cState;
+        serverStateEl.textContent = sState;
+
+        // Apply new class
+        clientStateEl.classList.add('state-' + cState.toLowerCase().replace(' ', '-'));
+        serverStateEl.classList.add('state-' + sState.toLowerCase().replace(' ', '-'));
+    }
+
+    // Helper: Display Feedback Message
+    function setFeedback(msg, type) {
+        messageEl.textContent = msg;
+        messageEl.className = 'message-area msg-' + type;
+    }
+
+    // Helper: Animate Packet
+    function animatePacket(type, startId, endId, callback) {
+        const startDev = document.getElementById(startId);
+        const endDev = document.getElementById(endId);
+        
+        const startRect = startDev.getBoundingClientRect();
+        const endRect = endDev.getBoundingClientRect();
+        const containerRect = document.querySelector('.network-view').getBoundingClientRect();
+
+        packetEl.textContent = type;
+        packetEl.style.display = 'block';
+
+        // Calculate positions relative to the container
+        const startX = startRect.left - containerRect.left + startRect.width / 2;
+        const startY = startRect.top - containerRect.top + startRect.height / 2;
+        const endX = endRect.left - containerRect.left + endRect.width / 2;
+        const endY = endRect.top - containerRect.top + endRect.height / 2;
+
+        packetEl.style.left = startX + 'px';
+        packetEl.style.top = startY + 'px';
+
+        // Perform animation using CSS transitions
+        requestAnimationFrame(() => {
+            packetEl.style.transition = 'all 1s ease-in-out';
+            packetEl.style.left = endX + 'px';
+            packetEl.style.top = endY + 'px';
+        });
+
+        // Cleanup after animation
+        setTimeout(() => {
+            packetEl.style.display = 'none';
+            packetEl.style.transition = 'none';
+            if (callback) callback();
+        }, 1000);
+    }
+
+    // STEP 1 Logic
+    function trySendStep1() {
+        const type = document.getElementById('p1Type').value;
+        const seq = parseInt(document.getElementById('p1Seq').value);
+        const ack = parseInt(document.getElementById('p1Ack').value);
+
+        if (type !== 'SYN') {
+            setFeedback("Error: The initial connection request must be a SYN packet.", 'error');
+            return;
+        }
+        if (isNaN(seq) || seq < 0) {
+            setFeedback("Error: Please enter a valid initial Sequence Number (Seq).", 'error');
+            return;
+        }
+
+        // Lock Step 1 controls
+        document.getElementById('send1Btn').disabled = true;
+        
+        // Success Action
+        animatePacket('SYN', 'client', 'server', () => {
+            setFeedback(`SUCCESS: Server received SYN (Seq=${seq}). Server is now allocating resources. Configure the response.`, 'success');
+            clientSeq = seq;
+            updateStates('SYN SENT', 'SYN RECEIVED');
+            step1Complete = true;
+
+            // Unlock Step 2
+            step1Panel.classList.add('disabled');
+            step2Panel.classList.remove('disabled');
+            document.getElementById('send2Btn').disabled = false;
+        });
+    }
+
+    // STEP 2 Logic
+    function trySendStep2() {
+        if (!step1Complete) return;
+
+        const seq = parseInt(document.getElementById('p2Seq').value);
+        const ack = parseInt(document.getElementById('p2Ack').value);
+        const expectedAck = clientSeq + 1;
+
+        if (isNaN(seq) || seq < 0) {
+            setFeedback("Error: Please enter a valid starting Sequence Number (Seq) for the server.", 'error');
+            return;
+        }
+        if (ack !== expectedAck) {
+            setFeedback(`Error: The Acknowledgment Number (Ack) is incorrect. The server must acknowledge the client's SYN (Seq=${clientSeq}) by setting Ack to clientSeq + 1 (expected: ${expectedAck}).`, 'error');
+            return;
+        }
+
+        // Lock Step 2 controls
+        document.getElementById('send2Btn').disabled = true;
+
+        // Success Action
+        animatePacket('SYN-ACK', 'server', 'client', () => {
+            setFeedback(`SUCCESS: Client received SYN-ACK. Client acknowledges established connection. Finalize the handshake.`, 'success');
+            serverSeq = seq;
+            updateStates('ESTABLISHED', 'SYN RECEIVED'); // Client is established now
+            step2Complete = true;
+
+            // Unlock Step 3
+            step2Panel.classList.add('disabled');
+            step3Panel.classList.remove('disabled');
+            document.getElementById('send3Btn').disabled = false;
+        });
+    }
+
+    // STEP 3 Logic
+    function trySendStep3() {
+        if (!step2Complete) return;
+
+        const seq = parseInt(document.getElementById('p3Seq').value);
+        const ack = parseInt(document.getElementById('p3Ack').value);
+        const expectedSeq = clientSeq + 1;
+        const expectedAck = serverSeq + 1;
+
+        if (seq !== expectedSeq) {
+            setFeedback(`Error: The Sequence Number (Seq) is incorrect. In the final ACK, the Seq must match the client's original Ack from Step 1 plus 1 (expected: ${expectedSeq}).`, 'error');
+            return;
+        }
+        if (ack !== expectedAck) {
+            setFeedback(`Error: The Acknowledgment Number (Ack) is incorrect. The client must acknowledge the server's SYN-ACK (Seq=${serverSeq}) by setting Ack to serverSeq + 1 (expected: ${expectedAck}).`, 'error');
+            return;
+        }
+
+        // Lock Step 3 controls
+        document.getElementById('send3Btn').disabled = true;
+
+        // Final Success Action
+        animatePacket('ACK', 'client', 'server', () => {
+            setFeedback(`COMPLETE: Connection established successfully! The handshake is finalized. Both parties are in the ESTABLISHED state.`, 'success');
+            updateStates('ESTABLISHED', 'ESTABLISHED');
+            step3Panel.classList.add('disabled');
+        });
+    }
+
+</script>
+
+</body>
+</html>
