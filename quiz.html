@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>U.S. State Capitals Quiz</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         :root {
             --primary-color: #2b579a;
@@ -90,7 +89,6 @@
             color: #222;
         }
 
-        /* Form Controls */
         .options-route {
             display: flex;
             flex-direction: column;
@@ -122,7 +120,6 @@
             resize: vertical;
         }
 
-        /* Matching Layout */
         .matching-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -141,20 +138,12 @@
             border-radius: 4px;
         }
 
-        /* Feedback section */
         .feedback {
             margin-top: 15px;
             padding: 10px;
             border-radius: 4px;
             display: none;
             font-weight: 500;
-        }
-
-        .explanation {
-            font-size: 0.9rem;
-            color: #555;
-            margin-top: 5px;
-            font-style: italic;
         }
 
         .correct { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
@@ -172,13 +161,34 @@
             display: none;
         }
 
+        /* PRINT STYLES: This explicitly forces clean formatting for the system PDF engine */
         @media print {
-            .btn-group, .feedback, #score-summary, button {
+            body {
+                background: white;
+                color: black;
+                padding: 0;
+                margin: 0;
+            }
+            .container {
+                box-shadow: none;
+                padding: 0;
+                max-width: 100%;
+            }
+            .btn-group, #score-summary, form button[type="submit"], .feedback {
                 display: none !important;
             }
-            body { background: white; padding: 0; }
-            .container { box-shadow: none; padding: 0; max-width: 100%; }
-            .question-block { page-break-inside: avoid; }
+            .question-block {
+                page-break-inside: avoid;
+                border: 1px solid #ccc;
+                background: transparent;
+            }
+            input[type="text"], textarea {
+                border-bottom: 1px solid #000 !important;
+                border-top: none !important;
+                border-left: none !important;
+                border-right: none !important;
+                background: transparent !important;
+            }
         }
     </style>
 </head>
@@ -193,7 +203,7 @@
     </div>
 
     <div class="btn-group">
-        <button class="btn-pdf" onclick="downloadPDF()">Download as PDF</button>
+        <button class="btn-pdf" onclick="window.print()">Save / Download as PDF</button>
         <button class="btn-csv" onclick="downloadD2LCSV()">Download D2L CSV (QTI)</button>
     </div>
 
@@ -256,7 +266,6 @@
             <div class="feedback"></div>
         </div>
 
-
         <h2>Section 2: Matching</h2>
 
         <div class="question-block" id="q6">
@@ -301,7 +310,6 @@
             <div class="feedback"></div>
         </div>
 
-
         <h2>Section 3: Fill in the Blank</h2>
 
         <div class="question-block" id="q8">
@@ -313,7 +321,6 @@
             <div class="question-title">9. Denver, known as the "Mile High City", is the capital of <input type="text" id="q9_ans" placeholder="Type state here">.</div>
             <div class="feedback"></div>
         </div>
-
 
         <h2>Section 4: Short Essay</h2>
 
@@ -332,7 +339,6 @@
 </div>
 
 <script>
-    // Quiz Answer Key & Explanations Data Structure
     const quizData = {
         q1: { type: "MC", correct: "B", label: "Albany", exp: "Many people guess New York City because it is the biggest city, but Albany has been the capital since 1797!" },
         q2: { type: "MC", correct: "D", label: "California", exp: "Sacramento became the official permanent capital of California in 1854 during the famous Gold Rush era." },
@@ -346,12 +352,10 @@
         q10: { type: "Essay", exp: "Teacher/Parent Grading Note: Look for answers mentioning that capitals host the Governor, state lawmakers (legislature), and courthouses, or serve as a central location to organize and create laws for everyone living in the state." }
     };
 
-    // Auto-Grading Logic
     function gradeQuiz() {
         let score = 0;
-        let totalAutograded = 9; // Questions 1-9 are auto-gradeable
+        let totalAutograded = 9;
 
-        // 1. Grade MC (Q1 - Q5)
         for (let i = 1; i <= 5; i++) {
             const qId = 'q' + i;
             const selected = document.querySelector(`input[name="${qId}"]:checked`);
@@ -368,7 +372,6 @@
             }
         }
 
-        // 2. Grade Matching (Q6 - Q7)
         for (let i = 6; i <= 7; i++) {
             const qId = 'q' + i;
             const selectedVal = document.getElementById(`${qId}_1`).value;
@@ -385,7 +388,6 @@
             }
         }
 
-        // 3. Grade FIB (Q8 - Q9)
         for (let i = 8; i <= 9; i++) {
             const qId = 'q' + i;
             const userAns = document.getElementById(`${qId}_ans`).value.trim().toLowerCase();
@@ -402,4 +404,50 @@
             }
         }
 
-        // 4.
+        const q10Feedback = document.querySelector(`#q10 .feedback`);
+        q10Feedback.style.display = "block";
+        q10Feedback.className = "feedback essay-feedback";
+        q10Feedback.innerHTML = `<strong>Essay Received (Requires Teacher Grading):</strong><br><small>${quizData.q10.exp}</small>`;
+
+        const summary = document.getElementById("score-summary");
+        summary.style.display = "block";
+        summary.innerHTML = `You scored ${score} out of ${totalAutograded} automatically graded points! (Question 10 pending review)`;
+        summary.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function downloadD2LCSV() {
+        let csvContent = "data:text/csv;charset=utf-8,";
+        
+        const rows = [
+            ["New York Capital", "MC", "1", "What is the capital city of New York?", "New York City", "0", "Albany", "100", "Buffalo", "0", "Syracuse", "0"],
+            ["California Capital", "MC", "1", "Sacramento is the capital of which western state?", "Washington", "0", "Oregon", "0", "Nevada", "0", "California", "100"],
+            ["Texas Capital", "MC", "1", "Which city is the capital of Texas?", "Houston", "0", "Dallas", "0", "Austin", "100", "San Antonio", "0"],
+            ["Florida Capital", "MC", "1", "If you visit the capital city of Florida, which city are you in?", "Miami", "0", "Orlando", "0", "Tallahassee", "100", "Tampa", "0"],
+            ["Hawaii Capital", "MC", "1", "Honolulu is the capital of which island state?", "Hawaii", "100", "Alaska", "0", "Florida", "0", "Rhode Island", "0"],
+            ["Illinois Matching", "MATCH", "1", "Match the Midwestern state to its correct capital city.", "Illinois", "Springfield"],
+            ["Massachusetts Matching", "MATCH", "1", "Match the Northeastern state to its correct capital city.", "Massachusetts", "Boston"],
+            ["Georgia FIB", "FIB", "1", "The capital city of Georgia is [blank].", "Atlanta"],
+            ["Colorado FIB", "FIB", "1", "Denver, known as the 'Mile High City', is the capital of [blank].", "Colorado"],
+            ["Capitals Purpose", "WR", "1", "Why do you think states choose to have capital cities? Explain at least one function or reason why a capital city is important to a state's government."]
+        ];
+
+        rows.forEach(function(rowArray) {
+            let row = rowArray.map(val => {
+                let cleanVal = val.replace(/"/g, '""');
+                return `"${cleanVal}"`;
+            }).join(",");
+            csvContent += row + "\r\n";
+        });
+
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", "d2l_capitals_question_bank.csv");
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+</script>
+
+</body>
+</html>
