@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>U.S. State Capitals Quiz</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #2b579a;
+            --secondary-color: #e8f1f5;
+            --accent-color: #d9534f;
+            --text-color: #333;
+            --success-color: #5cb85c;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: #f4f7f6;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--primary-color);
+            border-bottom: 3px solid var(--primary-color);
+            padding-bottom: 10px;
+        }
+
+        .instructions {
+            background-color: var(--secondary-color);
+            padding: 15px;
+            border-left: 5px solid var(--primary-color);
+            border-radius: 4px;
+            margin-bottom: 25px;
+            font-size: 0.95rem;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #1e3d6b;
+        }
+
+        .btn-pdf { background-color: #e05d5d; }
+        .btn-pdf:hover { background-color: #b83b3b; }
+        .btn-csv { background-color: #2ea44f; }
+        .btn-csv:hover { background-color: #227d3c; }
+
+        .question-block {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            background-color: #fafafa;
+        }
+
+        .question-title {
+            font-weight: bold;
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            color: #222;
+        }
+
+        /* Form Controls */
+        .options-route {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            max-width: 300px;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+
+        textarea {
+            width: 100%;
+            height: 100px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            resize: vertical;
+        }
+
+        /* Matching Layout */
+        .matching-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .matching-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .matching-item select {
+            padding: 5px;
+            border-radius: 4px;
+        }
+
+        /* Feedback section */
+        .feedback {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 4px;
+            display: none;
+            font-weight: 500;
+        }
+
+        .explanation {
+            font-size: 0.9rem;
+            color: #555;
+            margin-top: 5px;
+            font-style: italic;
+        }
+
+        .correct { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .incorrect { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .essay-feedback { background-color: #fff3cd; color: #856404; border: 1px solid #ffeeba; }
+
+        #score-summary {
+            font-size: 1.3rem;
+            font-weight: bold;
+            text-align: center;
+            margin-top: 20px;
+            padding: 15px;
+            background: var(--secondary-color);
+            border-radius: 6px;
+            display: none;
+        }
+
+        @media print {
+            .btn-group, .feedback, #score-summary, button {
+                display: none !important;
+            }
+            body { background: white; padding: 0; }
+            .container { box-shadow: none; padding: 0; max-width: 100%; }
+            .question-block { page-break-inside: avoid; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container" id="quiz-page">
+    <h1>U.S. State Capitals Examination</h1>
+    <p style="text-align: center; font-weight: bold;">Grade Level: 5th Grade</p>
+
+    <div class="instructions">
+        <strong>Instructions:</strong> Answer all 10 questions to the best of your ability. Once finished, you can click "Submit Quiz" at the bottom to check your answers. You can also download this test as a PDF or export the data for D2L learning management systems.
+    </div>
+
+    <div class="btn-group">
+        <button class="btn-pdf" onclick="downloadPDF()">Download as PDF</button>
+        <button class="btn-csv" onclick="downloadD2LCSV()">Download D2L CSV (QTI)</button>
+    </div>
+
+    <form id="quiz-form" onsubmit="event.preventDefault(); gradeQuiz();">
+
+        <h2>Section 1: Multiple Choice</h2>
+
+        <div class="question-block" id="q1">
+            <div class="question-title">1. What is the capital city of New York?</div>
+            <div class="options-route">
+                <label><input type="radio" name="q1" value="A"> A) New York City</label>
+                <label><input type="radio" name="q1" value="B"> B) Albany</label>
+                <label><input type="radio" name="q1" value="C"> C) Buffalo</label>
+                <label><input type="radio" name="q1" value="D"> D) Syracuse</label>
+            </div>
+            <div class="feedback"></div>
+        </div>
+
+        <div class="question-block" id="q2">
+            <div class="question-title">2. Sacramento is the capital of which western state?</div>
+            <div class="options-route">
+                <label><input type="radio" name="q2" value="A"> A) Washington</label>
+                <label><input type="radio" name="q2" value="B"> B) Oregon</label>
+                <label><input type="radio" name="q2" value="C"> C) Nevada</label>
+                <label><input type="radio" name="q2" value="D"> D) California</label>
+            </div>
+            <div class="feedback"></div>
+        </div>
+
+        <div class="question-block" id="q3">
+            <div class="question-title">3. Which city is the capital of Texas?</div>
+            <div class="options-route">
+                <label><input type="radio" name="q3" value="A"> A) Houston</label>
+                <label><input type="radio" name="q3" value="B"> B) Dallas</label>
+                <label><input type="radio" name="q3" value="C"> C) Austin</label>
+                <label><input type="radio" name="q3" value="D"> D) San Antonio</label>
+            </div>
+            <div class="feedback"></div>
+        </div>
+
+        <div class="question-block" id="q4">
+            <div class="question-title">4. If you visit the capital city of Florida, which city are you in?</div>
+            <div class="options-route">
+                <label><input type="radio" name="q4" value="A"> A) Miami</label>
+                <label><input type="radio" name="q4" value="B"> B) Orlando</label>
+                <label><input type="radio" name="q4" value="C"> C) Tallahassee</label>
+                <label><input type="radio" name="q4" value="D"> D) Tampa</label>
+            </div>
+            <div class="feedback"></div>
+        </div>
+
+        <div class="question-block" id="q5">
+            <div class="question-title">5. Honolulu is the capital of which island state?</div>
+            <div class="options-route">
+                <label><input type="radio" name="q5" value="A"> A) Hawaii</label>
+                <label><input type="radio" name="q5" value="B"> B) Alaska</label>
+                <label><input type="radio" name="q5" value="C"> C) Florida</label>
+                <label><input type="radio" name="q5" value="D"> D) Rhode Island</label>
+            </div>
+            <div class="feedback"></div>
+        </div>
+
+
+        <h2>Section 2: Matching</h2>
+
+        <div class="question-block" id="q6">
+            <div class="question-title">6. Match the Midwestern state to its correct capital city:</div>
+            <div class="matching-grid">
+                <div>
+                    <div class="matching-item">
+                        <span>Illinois:</span>
+                        <select id="q6_1">
+                            <option value="">-- Choose --</option>
+                            <option value="Indianapolis">Indianapolis</option>
+                            <option value="Springfield">Springfield</option>
+                            <option value="Lansing">Lansing</option>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <p style="margin:0; font-size: 0.9rem; color: #666;"><em>Hint: This city shares a name with the home town of Abraham Lincoln and the Simpsons!</em></p>
+                </div>
+            </div>
+            <div class="feedback"></div>
+        </div>
+
+        <div class="question-block" id="q7">
+            <div class="question-title">7. Match the Northeastern state to its correct capital city:</div>
+            <div class="matching-grid">
+                <div>
+                    <div class="matching-item">
+                        <span>Massachusetts:</span>
+                        <select id="q7_1">
+                            <option value="">-- Choose --</option>
+                            <option value="Boston">Boston</option>
+                            <option value="Hartford">Hartford</option>
+                            <option value="Augusta">Augusta</option>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <p style="margin:0; font-size: 0.9rem; color: #666;"><em>Hint: This famous city is home to the historical Tea Party event.</em></p>
+                </div>
+            </div>
+            <div class="feedback"></div>
+        </div>
+
+
+        <h2>Section 3: Fill in the Blank</h2>
+
+        <div class="question-block" id="q8">
+            <div class="question-title">8. The capital city of Georgia is <input type="text" id="q8_ans" placeholder="Type capital here">.</div>
+            <div class="feedback"></div>
+        </div>
+
+        <div class="question-block" id="q9">
+            <div class="question-title">9. Denver, known as the "Mile High City", is the capital of <input type="text" id="q9_ans" placeholder="Type state here">.</div>
+            <div class="feedback"></div>
+        </div>
+
+
+        <h2>Section 4: Short Essay</h2>
+
+        <div class="question-block" id="q10">
+            <div class="question-title">10. Why do you think states choose to have capital cities? Explain at least one function or reason why a capital city is important to a state's government. (Write 2-3 sentences)</div>
+            <textarea id="q10_ans" placeholder="Type your answer here..."></textarea>
+            <div class="feedback"></div>
+        </div>
+
+        <div style="text-align: center; margin-top: 30px;">
+            <button type="submit" style="font-size: 1.2rem; padding: 12px 30px;">Submit Quiz</button>
+        </div>
+    </form>
+
+    <div id="score-summary"></div>
+</div>
+
+<script>
+    // Quiz Answer Key & Explanations Data Structure
+    const quizData = {
+        q1: { type: "MC", correct: "B", label: "Albany", exp: "Many people guess New York City because it is the biggest city, but Albany has been the capital since 1797!" },
+        q2: { type: "MC", correct: "D", label: "California", exp: "Sacramento became the official permanent capital of California in 1854 during the famous Gold Rush era." },
+        q3: { type: "MC", correct: "C", label: "Austin", exp: "Austin is located in central Texas and is named after Stephen F. Austin, known as the 'Father of Texas'." },
+        q4: { type: "MC", correct: "C", label: "Tallahassee", exp: "Tallahassee was chosen as Florida's capital in 1824 because it was halfway between the state's two largest cities at the time (Pensacola and St. Augustine)." },
+        q5: { type: "MC", correct: "A", label: "Hawaii", exp: "Honolulu is located on the island of Oahu and its name means 'sheltered harbor' in the Hawaiian language." },
+        q6: { type: "Matching", correct: "Springfield", exp: "Springfield is the capital of Illinois. Chicago is the largest city, but Springfield is the home of state government." },
+        q7: { type: "Matching", correct: "Boston", exp: "Boston is both the capital and the largest city in Massachusetts, founded way back in 1630." },
+        q8: { type: "FIB", correct: ["atlanta"], exp: "Atlanta is the capital of Georgia and played a major role in both the Civil War and the 1960s Civil Rights Movement." },
+        q9: { type: "FIB", correct: ["colorado"], exp: "Denver is the capital of Colorado. It is called the 'Mile High City' because it sits exactly one mile (5,280 feet) above sea level!" },
+        q10: { type: "Essay", exp: "Teacher/Parent Grading Note: Look for answers mentioning that capitals host the Governor, state lawmakers (legislature), and courthouses, or serve as a central location to organize and create laws for everyone living in the state." }
+    };
+
+    // Auto-Grading Logic
+    function gradeQuiz() {
+        let score = 0;
+        let totalAutograded = 9; // Questions 1-9 are auto-gradeable
+
+        // 1. Grade MC (Q1 - Q5)
+        for (let i = 1; i <= 5; i++) {
+            const qId = 'q' + i;
+            const selected = document.querySelector(`input[name="${qId}"]:checked`);
+            const feedbackDiv = document.querySelector(`#${qId} .feedback`);
+            
+            feedbackDiv.style.display = "block";
+            if (selected && selected.value === quizData[qId].correct) {
+                score++;
+                feedbackDiv.className = "feedback correct";
+                feedbackDiv.innerHTML = `<strong>Correct!</strong> ${quizData[qId].exp}`;
+            } else {
+                feedbackDiv.className = "feedback incorrect";
+                feedbackDiv.innerHTML = `<strong>Incorrect.</strong> The correct answer is ${quizData[qId].correct}) ${quizData[qId].label}. <br><small>${quizData[qId].exp}</small>`;
+            }
+        }
+
+        // 2. Grade Matching (Q6 - Q7)
+        for (let i = 6; i <= 7; i++) {
+            const qId = 'q' + i;
+            const selectedVal = document.getElementById(`${qId}_1`).value;
+            const feedbackDiv = document.querySelector(`#${qId} .feedback`);
+            
+            feedbackDiv.style.display = "block";
+            if (selectedVal === quizData[qId].correct) {
+                score++;
+                feedbackDiv.className = "feedback correct";
+                feedbackDiv.innerHTML = `<strong>Correct!</strong> ${quizData[qId].exp}`;
+            } else {
+                feedbackDiv.className = "feedback incorrect";
+                feedbackDiv.innerHTML = `<strong>Incorrect.</strong> The correct choice was ${quizData[qId].correct}. <br><small>${quizData[qId].exp}</small>`;
+            }
+        }
+
+        // 3. Grade FIB (Q8 - Q9)
+        for (let i = 8; i <= 9; i++) {
+            const qId = 'q' + i;
+            const userAns = document.getElementById(`${qId}_ans`).value.trim().toLowerCase();
+            const feedbackDiv = document.querySelector(`#${qId} .feedback`);
+            
+            feedbackDiv.style.display = "block";
+            if (quizData[qId].correct.includes(userAns)) {
+                score++;
+                feedbackDiv.className = "feedback correct";
+                feedbackDiv.innerHTML = `<strong>Correct!</strong> ${quizData[qId].exp}`;
+            } else {
+                feedbackDiv.className = "feedback incorrect";
+                feedbackDiv.innerHTML = `<strong>Incorrect.</strong> The expected answer is "${quizData[qId].correct[0].toUpperCase() + quizData[qId].correct[0].slice(1)}". <br><small>${quizData[qId].exp}</small>`;
+            }
+        }
+
+        // 4.
